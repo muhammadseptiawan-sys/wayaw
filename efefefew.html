@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hitung Luas & Volume Bangun</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+  }
+  header {
+    background-color: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 20px;
+    gap: 12px;
+  }
+  header img {
+    height: 50px;
+  }
+  header h1 {
+    font-weight: 700;
+    font-size: 24px;
+  }
+  main {
+    background-color: rgba(0,0,0,0.75);
+    max-width: 480px;
+    margin: 40px auto;
+    padding: 25px 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.6);
+  }
+  label {
+    display: block;
+    margin-top: 15px;
+    font-weight: 600;
+  }
+  select, input {
+    width: 100%;
+    padding: 8px 12px;
+    margin-top: 6px;
+    border-radius: 6px;
+    border: none;
+    font-size: 16px;
+  }
+  button {
+    margin-top: 25px;
+    width: 100%;
+    padding: 12px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    background-color: #1a73e8;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #155ab6;
+  }
+  .result {
+    margin-top: 25px;
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+    color: #ffeb3b;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/368px-Google_2015_logo.svg.png" alt="Logo" />
+  <h1>Hitung Luas & Volume Bangun</h1>
+</header>
+
+<main>
+  <label for="jenis">Pilih Jenis Bangun:</label>
+  <select id="jenis" onchange="updateBentuk()">
+    <option value="">--Pilih--</option>
+    <option value="datar">Bangun Datar</option>
+    <option value="ruang">Bangun Ruang</option>
+  </select>
+
+  <label for="bentuk">Pilih Bentuk:</label>
+  <select id="bentuk" onchange="updateInputs()" disabled>
+    <option value="">--Pilih Jenis Terlebih Dahulu--</option>
+  </select>
+
+  <div id="inputs"></div>
+
+  <button onclick="hitung()">Hitung</button>
+
+  <div class="result" id="result"></div>
+</main>
+
+<script>
+  const bentukDatar = {
+    persegi: ['Sisi (cm)'],
+    persegi_panjang: ['Panjang (cm)', 'Lebar (cm)'],
+    lingkaran: ['Jari-jari (cm)'],
+    segitiga: ['Alas (cm)', 'Tinggi (cm)']
+  };
+
+  const bentukRuang = {
+    kubus: ['Sisi (cm)'],
+    balok: ['Panjang (cm)', 'Lebar (cm)', 'Tinggi (cm)'],
+    tabung: ['Jari-jari (cm)', 'Tinggi (cm)'],
+    bola: ['Jari-jari (cm)']
+  };
+
+  function updateBentuk() {
+    const jenis = document.getElementById('jenis').value;
+    const bentukSelect = document.getElementById('bentuk');
+    bentukSelect.innerHTML = '';
+    document.getElementById('inputs').innerHTML = '';
+    document.getElementById('result').innerText = '';
+
+    if (!jenis) {
+      bentukSelect.disabled = true;
+      bentukSelect.innerHTML = '<option value="">--Pilih Jenis Terlebih Dahulu--</option>';
+      return;
+    }
+
+    bentukSelect.disabled = false;
+
+    let options = '<option value="">--Pilih Bentuk--</option>';
+    let listBentuk = jenis === 'datar' ? bentukDatar : bentukRuang;
+
+    for (const key in listBentuk) {
+      const nama = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      options += `<option value="${key}">${nama}</option>`;
+    }
+    bentukSelect.innerHTML = options;
+  }
+
+  function updateInputs() {
+    const jenis = document.getElementById('jenis').value;
+    const bentuk = document.getElementById('bentuk').value;
+    const inputsDiv = document.getElementById('inputs');
+    inputsDiv.innerHTML = '';
+    document.getElementById('result').innerText = '';
+
+    if (!bentuk) return;
+
+    let listBentuk = jenis === 'datar' ? bentukDatar : bentukRuang;
+    const params = listBentuk[bentuk];
+
+    params.forEach(param => {
+      inputsDiv.innerHTML += `
+        <label>${param}:</label>
+        <input type="number" min="0" id="${param}" required />
+      `;
+    });
+  }
+
+  function hitung() {
+    const jenis = document.getElementById('jenis').value;
+    const bentuk = document.getElementById('bentuk').value;
+    const resultDiv = document.getElementById('result');
+
+    if (!jenis || !bentuk) {
+      alert('Silakan pilih jenis dan bentuk bangun terlebih dahulu!');
+      return;
+    }
+
+    let listBentuk = jenis === 'datar' ? bentukDatar : bentukRuang;
+    const params = listBentuk[bentuk];
+    let values = [];
+
+    for (const param of params) {
+      const input = document.getElementById(param);
+      if (!input.value || input.value <= 0) {
+        alert(`Silakan masukkan nilai ${param} yang valid!`);
+        return;
+      }
+      values.push(Number(input.value));
+    }
+
+    let hasil = '';
+    if (jenis === 'datar') {
+      hasil = hitungLuas(bentuk, values);
+      resultDiv.innerText = `Luas ${bentuk.replace(/_/g, ' ')} = ${hasil.toFixed(2)} cm²`;
+    } else {
+      hasil = hitungVolume(bentuk, values);
+      resultDiv.innerText = `Volume ${bentuk.replace(/_/g, ' ')} = ${hasil.toFixed(2)} cm³`;
+    }
+  }
+
+  function hitungLuas(bentuk, vals) {
+    switch (bentuk) {
+      case 'persegi':
+        return vals[0] * vals[0];
+      case 'persegi_panjang':
+        return vals[0] * vals[1];
+      case 'lingkaran':
+        return Math.PI * vals[0] * vals[0];
+      case 'segitiga':
+        return 0.5 * vals[0] * vals[1];
+      default:
+        return 0;
+    }
+  }
+
+  function hitungVolume(bentuk, vals) {
+    switch (bentuk) {
+      case 'kubus':
+        return Math.pow(vals[0], 3);
+      case 'balok':
+        return vals[0] * vals[1] * vals[2];
+      case 'tabung':
+        return Math.PI * vals[0] * vals[0] * vals[1];
+      case 'bola':
+        return (4/3) * Math.PI * Math.pow(vals[0], 3);
+      default:
+        return 0;
+    }
+  }
+</script>
+
+</body>
+</html>
